@@ -8,7 +8,7 @@ export async function load({ cookies, fetch }) {
 		oAuth.getRequestToken(
 			env.PRIVATE_DISCOGS_APP_CONSUMER_KEY,
 			env.PRIVATE_DISCOGS_APP_SIGNATURE,
-			`${env.ORIGIN}/callback`,
+			`${env.VITE_VERCEL_URL}/callback`,
 			function(err, data) {
 				if (err) {
 					reject(err);
