@@ -3,18 +3,24 @@ import { browser } from '$app/environment';
 
 export const ssr = false;
 
-export async function load({ url }) {
+export async function load({ fetch }) {
 
 	if (browser) {
 		const accessToken = getAccessToken();
 		let identity = null;
 		if (accessToken) {
-			identity = await callDiscogs({ path: '/oauth/identity' });
+			identity = await callDiscogs({ path: '/oauth/identity',fetch });
 		}
 
 		return {
 			accessToken,
 			identity
+		};
+	}
+	else {
+		return {
+			accessToken: null,
+			identity: null
 		};
 	}
 

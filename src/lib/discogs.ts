@@ -5,6 +5,10 @@ const { Client } = disconnect;
 
 export const DiscogsClient = Client;
 
+export interface RequestTokenResponse {
+	authorizeUrl: string;
+};
+
 
 export function getAccessToken() {
 	const item = localStorage.getItem('accessToken');
@@ -29,12 +33,13 @@ export async function callDiscogs(options: {
 	method?: 'GET' | 'POST';
 	path: string;
 	body?: unknown;
+	fetch: (input: (RequestInfo | URL), init?: RequestInit) => Promise<Response>;
 
 }) {
-
+	const fetchMethod = options.fetch ?? fetch;
 	const url = PUBLIC_DISCOGS_URL + options.path;
 	const method = options.method ?? 'GET';
-	return await fetch(url, {
+	return await fetchMethod(url, {
 		method: method,
 		headers: {
 			Authorization: buildAuthorizationHeader(method, url)

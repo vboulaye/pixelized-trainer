@@ -7,6 +7,7 @@
 	let data = $page.data;
 
 	if (browser) {
+		// we keep the token in localStorage for now
 		localStorage.setItem('accessToken', JSON.stringify(data.accessToken));
 		goto('/');
 	}
@@ -14,6 +15,5 @@
 </script>
 
 <span>
-	{JSON.stringify({ data })}
-	<a href="/" data-sveltekit-preload-data="off">home</a>
+	<a href="/" data-sveltekit-preload-data="off">continue</a>
 </span>

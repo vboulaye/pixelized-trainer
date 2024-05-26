@@ -6,3 +6,8 @@ export const PixelizedTrainerConfig = {
 		userAgent: 'Pixelized-Trainer-App'
 	}
 };
+
+
+export function randomize(max:number) {
+	return Math.floor(Math.random() * max);
+}

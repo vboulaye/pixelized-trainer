@@ -1,11 +1,17 @@
 import { env } from '$env/dynamic/private';
-import { DiscogsClient } from '$lib/discogs';
+import { DiscogsClient, type RequestTokenResponse } from '$lib/discogs';
 import { redirect } from '@sveltejs/kit';
 
-export async function load({ cookies, fetch, url }) {
-	const oAuth = new DiscogsClient().oauth();
-	const callbackUrl = url.toString().replace("/login", '/callback');
-	const requestToken = await new Promise(function(resolve, reject) {
+export async function load({ cookies, url }) {
+	const savedRequestToken: RequestTokenResponse = JSON.parse(cookies.get('requestToken') ?? '');
+	if (savedRequestToken) {
+		console.log('reusing saved request token');
+		redirect(302, savedRequestToken.authorizeUrl);
+	}
+
+	const requestToken: RequestTokenResponse = await new Promise(function(resolve, reject) {
+		const oAuth = new DiscogsClient().oauth();
+		const callbackUrl = url.toString().replace('/login', '/callback');
 		oAuth.getRequestToken(
 			env.PRIVATE_DISCOGS_APP_CONSUMER_KEY,
 			env.PRIVATE_DISCOGS_APP_SIGNATURE,
@@ -19,10 +25,7 @@ export async function load({ cookies, fetch, url }) {
 			}
 		);
 	});
-
-	console.log({ requestToken });
+	// kept until callback is called (back)
 	cookies.set('requestToken', JSON.stringify(requestToken), { path: '/' });
 	redirect(302, requestToken.authorizeUrl);
-	// redirect(302, env.PRIVATE_DISCOGS_URL + `/oauth/authorize?oauth_token=${oauth_token}&oauth_callback=${env.ORIGIN}/callback`);
-	// return {requestToken: (requestToken)};
 }

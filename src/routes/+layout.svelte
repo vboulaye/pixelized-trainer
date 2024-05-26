@@ -1,27 +1,28 @@
 <script lang="ts">
 	import 'simpledotcss/simple.min.css';
-	import { callDiscogs, getAccessToken } from '$lib/discogs';
-	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 
-	let identity: { username: string };
+	let data = $page.data;
 
-	onMount(async () => {
-		const accessToken = getAccessToken();
-		if (accessToken) {
-			identity = await callDiscogs({ path: '/oauth/identity' });
-		}
-	});
+	// onMount(async () => {
+	// 	const accessToken = getAccessToken();
+	// 	if (accessToken) {
+	// 		identity = await callDiscogs({ path: '/oauth/identity' });
+	// 	}
+	// });
 
 </script>
 
 <header>
-	{#if identity}
-		<nav>
-			Welcome {identity?.username}
-		</nav>
-	{:else}
-		Loading...
-	{/if}
+	<nav>
+		{#if data.identity}
+			<a href="/" data-sveltekit-preload-data="off">Welcome {data.identity?.username}</a>/
+		{:else if data.accessToken}
+			Loading...
+		{:else}
+			<a href="/login" data-sveltekit-preload-data="off">login to discogs</a>/
+		{/if}
+	</nav>
 </header>
 
 <main>
@@ -29,12 +30,6 @@
 </main>
 
 <style>
-
-    .image-avatar {
-        width: 3rem;
-        height: 3rem;
-    }
-
     :root {
         --accent: darkcyan;
     }
