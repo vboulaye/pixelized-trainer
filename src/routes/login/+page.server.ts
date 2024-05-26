@@ -2,13 +2,14 @@ import { env } from '$env/dynamic/private';
 import { DiscogsClient } from '$lib/discogs';
 import { redirect } from '@sveltejs/kit';
 
-export async function load({ cookies, fetch }) {
+export async function load({ cookies, fetch, url }) {
 	const oAuth = new DiscogsClient().oauth();
+	const callbackUrl = url.toString().replace("/login", '/callback');
 	const requestToken = await new Promise(function(resolve, reject) {
 		oAuth.getRequestToken(
 			env.PRIVATE_DISCOGS_APP_CONSUMER_KEY,
 			env.PRIVATE_DISCOGS_APP_SIGNATURE,
-			`${env.VITE_VERCEL_URL}/callback`,
+			callbackUrl,
 			function(err, data) {
 				if (err) {
 					reject(err);
