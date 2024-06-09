@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
 	const query = getQuery(event);
 	const oauthVerifier = query.oauth_verifier;
-	console.log({ oauthVerifier,requestToken })
+	console.log({ oauthVerifier, requestToken });
 	const accessToken = await new Promise(function(resolve, reject) {
 		const oAuth = new DiscogsClient(requestToken).oauth();
 		oAuth.getAccessToken(
@@ -20,10 +20,10 @@ export default defineEventHandler(async (event) => {
 		);
 	});
 
-	deleteCookie(event, 'requestToken')
+	deleteCookie(event, 'requestToken');
 
 	const secureCookie = process.env.NODE_ENV === 'production';
-	console.log(secureCookie)
+	console.log(secureCookie);
 	setCookie(event, 'accessToken', JSON.stringify(accessToken), {
 		httpOnly: false,
 		secure: secureCookie

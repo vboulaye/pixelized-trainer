@@ -8,6 +8,11 @@ export interface RequestTokenResponse {
 	authorizeUrl: string;
 }
 
+export interface DiscogsIdentity {
+	id:string;
+	username:string;
+}
+
 export function getAccessToken() {
 	const cookieRef = useCookie('accessToken');
 	// console.log({ cookieRef });
@@ -28,24 +33,24 @@ function buildAuthorizationHeader(method: 'GET' | 'POST', url: string) {
 	return authorization;
 }
 
-export async function callDiscogs(options: {
+export async function callDiscogs<T>(options: {
 	method?: 'GET' | 'POST';
 	path: string;
 	body?: unknown;
-	fetch: (input: (RequestInfo | URL), init?: RequestInit) => Promise<Response>;
 
-}) {
-	const fetchMethod = options.fetch ?? fetch;
+}):Promise<T> {
 
 	const appConfig = useAppConfig();
 
 	const url = appConfig.discogs.url + options.path;
+	console.log('url=' + options.path);
 	const method = options.method ?? 'GET';
-	return await fetchMethod(url, {
+	const newVar = await $fetch(url, {
 		method: method,
 		headers: {
 			Authorization: buildAuthorizationHeader(method, url)
 		}
-	}).then(res => res.json());
+	});
+	return newVar as T
 
 }
