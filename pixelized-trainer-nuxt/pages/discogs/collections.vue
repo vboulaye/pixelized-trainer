@@ -1,16 +1,18 @@
 <template>
 	<div>
 
-		<PixelizedCheckForm :artists="wishedRelease.artists" @retry="retry"></PixelizedCheckForm>
+		<PixelizedCheckForm :artists="wishedRelease.artists||[]" @retry="retry"></PixelizedCheckForm>
 
 		<PixelizedImage :image-url="wishedRelease.cover_image"></PixelizedImage>
-		{{ wishedRelease }}
+		{{ wishedRelease.artists }}
 	</div>
 
 
 </template>
 
 <script setup lang="ts">
+
+import { discogsUserCollection } from '~/composables/useDiscogsUserCollection';
 
 const { data: identity } = await useDiscogsIdentity();
 
@@ -22,18 +24,50 @@ function cleanupRelease(release) {
 	};
 }
 
-function retry() {
 
+provide('timer', useTimer())
+
+
+function retry() {
+	console.log(refreshableRef);
+	// refreshableRef.refresh()
+	refreshableRef.value++;
 }
 
-const wishedRelease = computedAsync(
+const wishedRelease = ref({});
+
+// function useRefreshableRef() : { value: boolean, refresh: () => void }{
+// 	let _trigger: () => void;
+// 	const ref = customRef((track, trigger) => {
+// 		_trigger= trigger;
+// 		return {
+// 			get() {
+// 				track();
+// 				return true;
+// 			},
+// 			set() {
+// 				trigger();
+// 			}
+// 		};
+// 	});
+// 	ref.refresh= () => {
+// 		_trigger();
+// 	};
+// 	return ref
+// }
+
+// const refreshableRef = useRefreshableRef();
+const refreshableRef = ref(0);
+
+watchEffect(
 	async () => {
 		if (!identity || !identity.value || !identity.value.username) {
 			return [];
 		}
+		refreshableRef.value;
 		const perPage = 1;
 		const folderId = 0;
-		const { data: discogsUserCollection } = await useDiscogsUserCollection({
+		const collection = await discogsUserCollection({
 			username: identity.value.username,
 			folderId: folderId,
 			page: 0,
@@ -41,13 +75,13 @@ const wishedRelease = computedAsync(
 		});
 
 
-		const wishedItem = randomize(discogsUserCollection.value.pagination.items);
+		const wishedItem = randomize(collection.pagination.items);
 		const wishedPage = Math.trunc(wishedItem / perPage);
 		const wishedItemInPage = wishedItem % perPage;
 
 		console.log({ wishedItem, wishedPage, wishedItemInPage });
 
-		const { data: discogsUserCollectionRandom } = await useDiscogsUserCollection({
+		const collectionRandom = await discogsUserCollection({
 			username: identity.value.username,
 			folderId: folderId,
 			page: wishedPage,
@@ -56,13 +90,11 @@ const wishedRelease = computedAsync(
 
 		// console.log({ result });
 
-		const release = discogsUserCollectionRandom.value.releases[wishedItemInPage];
+		const release = collectionRandom.releases[wishedItemInPage];
 		console.log({ release });
-		const wishedRelease = cleanupRelease(release);
-		return wishedRelease;
+		wishedRelease.value = cleanupRelease(release);
 
-	},
-	{} // initial state
+	}
 );
 
 

@@ -1,6 +1,6 @@
 <template>
 	<form @submit="check">
-		<input type="text" name="artist" :value="guessedArtist" placeholder="guess the artist name" autofocus>
+		<input v-model="guessedArtist" type="text" name="artist" placeholder="guess the artist name" >
 		<button type="submit">check</button>
 		<button type="reset" @click="retry">retry</button>
 		<h2>{{ (timer.elapsed.value / 1000).toFixed(2) }}s</h2>
@@ -15,9 +15,12 @@ const props = defineProps<{
 
 const emit = defineEmits(['retry'])
 
-let guessedArtist = '';
+let guessedArtist = defineModel<string>();
 
-function cleanupName(name:string) {
+function cleanupName(name:string|undefined) {
+	if (!name) {
+		return '';
+	}
 	return name.normalize('NFKD')
 		.replace(/[\u0300-\u036f]/g, '')
 		.toLowerCase()
@@ -26,12 +29,11 @@ function cleanupName(name:string) {
 
 function check(e) {
 
-	const matchedArtist = props.artists.find(({ name }) => cleanupName(name) === cleanupName(guessedArtist));
+	const matchedArtist = props.artists.find(({ name }) => cleanupName(name) === cleanupName(guessedArtist.value));
 
 	if (matchedArtist) {
 		alert('Correct!');
-		guessedArtist = '';
-		timer.stopTimer()
+		guessedArtist.value = '';
 		retry();
 	} else {
 		alert('Try again!' + JSON.stringify(props.artists));
@@ -41,11 +43,12 @@ function check(e) {
 function retry() {
 	// fillBlack();
 	// invalidate('app:random');
+	timer.stopTimer();
 	emit('retry');
 }
 
 
-const timer = useTimer();
+const timer = inject('timer')
 
 onMounted(() => {
 	timer.startTimer();

@@ -12,6 +12,7 @@ const productionMode = process.env.NODE_ENV === 'production';
 <template>
 	<div>
 		<h1>{{ error.statusCode }}</h1>
+		<p>{{error.message}}</p>
 		<span v-if="!productionMode" v-html="error.stack" />
 		<NuxtLink to="/">Go back home</NuxtLink>
 	</div>

@@ -4,11 +4,13 @@ export const useTimer = () => {
 	let frameTimer: number = 0;
 
 	function resetTimer() {
+		console.log('resetTimer')
 		last_time.value = window.performance.now();
 		elapsed.value = 0;
 	}
 
 	function stopTimer() {
+		console.log('stopTimer')
 		last_time.value = 0;
 		elapsed.value = 0;
 		if (frameTimer) {
@@ -17,15 +19,18 @@ export const useTimer = () => {
 	}
 
 	function startTimer() {
-		last_time.value = 0;
+		console.log('startTimer')
+		last_time.value = window.performance.now();
 		elapsed.value = 0;
 
 		function update() {
-			frameTimer = requestAnimationFrame(update);
 			if (last_time.value > 0) {
+				frameTimer = requestAnimationFrame(update);
 				const time = window.performance.now();
 				elapsed.value += time - last_time.value;
 				last_time.value = time;
+			} else {
+				cancelAnimationFrame(frameTimer);
 			}
 		}
 

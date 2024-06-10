@@ -20,7 +20,9 @@ defineProps({
 
 const emit = defineEmits(['refreshImage'])
 
-const timer = useTimer();
+// const timer = useTimer();
+
+const timer = inject('timer')
 
 let canvas: HTMLCanvasElement;
 let frame: any = undefined;
@@ -49,7 +51,7 @@ function fillBlack() {
 	if (frame) {
 		cancelAnimationFrame(frame);
 	}
-  timer.stopTimer();
+  // timer.stopTimer();
 	const context = canvas.getContext('2d');
 	context.fillStyle = 'black';
 	context.fillRect(0, 0, canvas.width, canvas.height);
@@ -60,11 +62,11 @@ function refreshImage() {
 
 	const context = fillBlack();
 	emit('refreshImage')
-	timer.startTimer();
-	frame = requestAnimationFrame(function loop(t) {
+		frame = requestAnimationFrame(function loop(t) {
 		frame = requestAnimationFrame(loop);
 		paint(context, t);
 	});
+	timer.startTimer();
 
 }
 
