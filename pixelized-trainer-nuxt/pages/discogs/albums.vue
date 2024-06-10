@@ -24,18 +24,12 @@ const title = defineModel<string>('title');
 
 const albums = ref([]);
 
-watchEffect(
-	async () => {
-		if (!query.value && !artist.value && !title.value) {
-			return;
-		}
 
-		debounced();
-
-	}
-);
 const debounced = debounce(async () => {
 	const perPage = 27;
+	if (!query.value && !artist.value && !title.value) {
+		return;
+	}
 
 	let queryString = '';
 	if (title.value) {
@@ -48,17 +42,26 @@ const debounced = debounce(async () => {
 		queryString += '&query=' + query.value;
 	}
 	const collection = await callDiscogs<[]>({ path: `/database/search?type=master&per_page=${perPage}${queryString}` });
-	console.log((collection.results));
+	// console.log((collection.results));
 	albums.value = collection.results
 		.map(({ id, title, cover_image , thumb}) => ({ id, title, cover_image,thumb }));
-}, 500);
+}, 200);
 
+
+watchEffect(
+	async () => {
+		debounced (query.value || artist.value || title.value) ;
+	}
+);
 
 function debounce(fn: () => void, wait: number) {
 	let timer;
 	return function(...args) {
 		if (timer) {
 			clearTimeout(timer); // clear any pre-existing timer
+		}
+		if (!args){
+			return
 		}
 		const context = this; // get the current context
 		timer = setTimeout(() => {

@@ -2,11 +2,11 @@
 	<div class="body">
 		<header>
 			<nav>
-				<a v-if="identity" href="/">Welcome {{identity.username}}</a>
+				<a v-if="identity.username" href="/">Welcome {{identity.username}}</a>
 <!--				<a v-if="identity.data" href="/" >Welcome {{ identity.data }}-->
 <!--				</a>-->
 <!--				<span v-else-if="identity.pending">Loading...</span>-->
-<!--				<a v-else href="/login" >login to discogs</a>-->
+				<a  href="/auth/login" >login to discogs</a>
 			</nav>
 		</header>
 
